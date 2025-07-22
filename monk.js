@@ -39,6 +39,7 @@ export default function Monk(model = 'gpt-4.1') {
         };
 
         try { tool.parameters = assertVar('parameters'); } catch {}
+        try { tool.strict = assertVar('strict'); } catch {}
 
         this.tools.push(tool);
         this.functions[name] = assertVar('callback');
