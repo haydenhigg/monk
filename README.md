@@ -56,13 +56,13 @@ const completion = await monk.respond();
 - `.model: string`: model string provided in constructor
 - `.messages: object[]`: all input messages, including sent messages as well as queued messages
 - `.toolbox: ToolBox`
-    - `.create(options: object)`: create a function tool with options:
+    - `.create(options: object)`: create a function tool. `options`:
         - `name: string` (required)
         - `description: string` (required)
         - `callback: (args: object) => any` (required)
         - `parameters: object`
         - `strict: boolean`
-    - `.call(toolCall: object)`: call a function tool
+    - `.call(toolCall: object)`: call a function tool. `toolCall`:
         - `name: string` (required)
         - `arguments: object` (required)
 - `.addMessage(role: Monk.USER | Monk.Developer, content: string)`: queue a new message
