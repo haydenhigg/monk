@@ -99,18 +99,13 @@ function Monk(model) {
     };
 }
 
-Object.defineProperty(Monk, 'USER', {
-    value: 'user',
-    writable: false,
-    configurable: false,
-    enumerable: false,
-});
-
-Object.defineProperty(Monk, 'DEVELOPER', {
-    value: 'developer',
-    writable: false,
-    configurable: false,
-    enumerable: false,
+['USER', 'DEVELOPER', 'ASSISTANT'].forEach(role => {
+    Object.defineProperty(Monk, role, {
+        value: role.toLowerCase(),
+        writable: false,
+        configurable: false,
+        enumerable: false,
+    });
 });
 
 export default Monk;
