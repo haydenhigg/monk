@@ -65,5 +65,5 @@ const completion = await monk.respond();
     - `.call(toolCall: object)`: call a function tool. `toolCall`:
         - `name: string` (required)
         - `arguments: object` (required)
-- `.addMessage(role: Monk.USER | Monk.Developer, content: string)`: queue a new message
+- `.addMessage(role: Monk.USER | Monk.DEVELOPER, content: string)`: queue a new message
 - `async .respond(prompt: string | null)`: adds prompt as a user message if provided, then gets a response from OpenAI, calling tools automatically
