@@ -39,7 +39,7 @@ monk.toolbox.create({
 #### 3. add messages and get responses
 ```js
 monk.addMessage(Monk.DEVELOPER, 'You are a helpful and friendly AI assistant.');
-console.log(await monk.respond('Hello! My name is Hayden. What is the date tomorrow?'));
+const completion = await monk.respond('Hello! My name is Hayden. What is the date tomorrow?');
 ```
 
 ... or equivalently ...
