@@ -38,7 +38,7 @@ function Toolbox() {
     this.call = async (toolCall = {}) => {
         const name = assertProperty(toolCall, 'name');
         const args = JSON.parse(assertProperty(toolCall, 'arguments'));
-        return JSON.stringify(await this.functions[name](args));
+        return JSON.stringify((await this.functions[name](args)) || 'success');
     };
 }
 
