@@ -1,6 +1,26 @@
 {
+    "name": "monkai",
+    "version": "1.0.0",
+    "description": "a razor-thin QOL wrapper around OpenAI's Responses API",
+    "keywords": [
+        "OpenAI",
+        "wrapper",
+        "lightweight"
+    ],
+    "homepage": "https://github.com/haydenhigg/monk#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/haydenhigg/monk.git"
+    },
+    "license": "MIT",
+    "author": "Hayden Higginbotham",
     "type": "module",
+    "main": "monk.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
     "dependencies": {
         "openai": "^5.10.1"
-    }
+    },
+    "devDependencies": {}
 }

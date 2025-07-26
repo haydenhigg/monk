@@ -1,10 +1,10 @@
 # monk
-an razor-thin QOL wrapper around OpenAI's Responses API
+a razor-thin QOL wrapper around OpenAI's Responses API
 
 ## usage
 #### 1. import and create
 ```js
-import Monk from './monk.js';
+import Monk from 'monkai';
 const monk = new Monk('gpt-4o');
 ```
 
