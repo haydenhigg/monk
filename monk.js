@@ -1,93 +1,116 @@
 import OpenAI from 'openai';
 
-const Message = Object.freeze({
+const MessageType = Object.freeze({
     FUNCTION_CALL: 'function_call',
     FUNCTION_CALL_OUTPUT: 'function_call_output',
 });
 
-export default function Monk(model = 'gpt-4.1') {
-    this.client = new OpenAI();
-    this.model = model;
-    this.messages = [];
+function Toolbox() {
+    const assertProperty = (obj, key) => {
+        if (obj.hasOwnProperty(key)) {
+            return obj[key];
+        } else {
+            throw new Error(`required argument missing: ${key}`);
+        }
+    };
+
     this.tools = [];
     this.functions = {};
 
-    this.addMessage = (role, content) => {
-        this.messages.push({ role, content });
-    };
-
-    this.addToolFunction = (options = {}) => {
-        // name, description, parameters, fn
-        const assertVar = (key) => {
-            if (options.hasOwnProperty(key)) {
-                return options[key];
-            } else {
-                throw new Error(`required argument missing: ${key}`);
-            }
-        };
-
-        const name = assertVar('name');
+    this.create = (options = {}) => {
+        const name = assertProperty(options, 'name');
+        const description = assertProperty(options, 'description');
+        const callback = assertProperty(options, 'callback');
 
         if (this.tools.find(tool => tool.name === name)) {
             throw new Error('tool with name already exists');
         }
 
-        const tool = {
-            type: 'function',
-            name,
-            description: assertVar('description'),
-        };
+        const tool = { type: 'function', name, description };
 
-        try { tool.parameters = assertVar('parameters'); } catch {}
-        try { tool.strict = assertVar('strict'); } catch {}
+        try { tool.parameters = assertProperty(options, 'parameters'); } catch {}
+        try { tool.strict = assertProperty(options, 'strict'); } catch {}
 
         this.tools.push(tool);
-        this.functions[name] = assertVar('callback');
+        this.functions[name] = callback;
     };
 
-    this.__respond = async () => {
+    this.call = async (toolCall = {}) => {
+        const name = assertProperty(toolCall, 'name');
+        const args = JSON.parse(assertProperty(toolCall, 'arguments'));
+        return JSON.stringify(await this.functions[name](args));
+    };
+}
+
+function Monk(model) {
+    this.client = new OpenAI();
+
+    this.model = model;
+    this.messages = [];
+    this.toolbox = new Toolbox();
+
+    this.addMessage = (role, content) => {
+        this.messages.push({ role, content });
+    };
+
+    this.__respondToMessages = async () => {
         return await this.client.responses.create({
             model: this.model,
             input: this.messages,
-            tools: this.tools,
+            tools: this.toolbox.tools,
         });
     };
 
     this.respond = async (prompt) => {
-        this.addMessage('user', prompt);
+        if (prompt) {
+            this.addMessage(Monk.USER, prompt);
+        }
 
-        let isResponseNeeded = true;
-        let response = await this.__respond();
+        let response = await this.__respondToMessages();
 
-        while (isResponseNeeded && response.output) {
-            isResponseNeeded = false;
+        while (response.output) {
+            let isResponseNeeded = false;
 
-            for (const toolCall of response.output) {
-                if (toolCall.type !== Message.FUNCTION_CALL) {
+            for (const message of response.output) {
+                delete message.id;
+                this.messages.push(message);
+
+                if (message.type !== MessageType.FUNCTION_CALL) {
                     continue;
                 }
 
-                const args = JSON.parse(toolCall.arguments);
-                const output = await this.functions[toolCall.name](args);
-
-                this.messages.push(toolCall);
                 this.messages.push({
-                    type: Message.FUNCTION_CALL_OUTPUT,
-                    call_id: toolCall.call_id,
-                    output,
+                    type: MessageType.FUNCTION_CALL_OUTPUT,
+                    call_id: message.call_id,
+                    output: await this.toolbox.call(message),
                 });
 
                 isResponseNeeded = true;
             }
 
             if (isResponseNeeded) {
-                response = await this.__respond();
+                response = await this.__respondToMessages();
+            } else {
+                break;
             }
         }
 
-        const responseText = response.output_text;
-        this.addMessage('assistant', responseText);
-
-        return responseText;
+        return response.output_text;
     };
 }
+
+Object.defineProperty(Monk, 'USER', {
+    value: 'user',
+    writable: false,
+    configurable: false,
+    enumerable: false,
+});
+
+Object.defineProperty(Monk, 'DEVELOPER', {
+    value: 'developer',
+    writable: false,
+    configurable: false,
+    enumerable: false,
+});
+
+export default Monk;
