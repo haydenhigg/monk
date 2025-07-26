@@ -1,6 +1,6 @@
 {
     "name": "monkai",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "a razor-thin QOL wrapper around OpenAI's Responses API",
     "files": [
         "monk.js"
